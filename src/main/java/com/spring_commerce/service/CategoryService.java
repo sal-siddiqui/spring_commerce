@@ -1,14 +1,14 @@
 package com.spring_commerce.service;
 
-import com.spring_commerce.model.Category;
+import com.spring_commerce.payload.CategoryDTO;
 import com.spring_commerce.payload.CategoryResponse;
 
 public interface CategoryService {
     CategoryResponse getAllCategories();
 
-    String createCategory(Category category);
+    CategoryDTO createCategory(CategoryDTO newCategoryDTO);
 
-    String deleteCategory(Long categoryId);
+    CategoryDTO deleteCategory(Long categoryId);
 
-    String updateCategory(Category category, Long categoryId);
+    CategoryDTO updateCategory(CategoryDTO updatedCategoryDTO, Long categoryId);
 }
