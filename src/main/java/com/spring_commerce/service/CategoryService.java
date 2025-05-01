@@ -4,7 +4,7 @@ import com.spring_commerce.payload.CategoryDTO;
 import com.spring_commerce.payload.CategoryResponse;
 
 public interface CategoryService {
-    CategoryResponse getAllCategories();
+    CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize);
 
     CategoryDTO createCategory(CategoryDTO newCategoryDTO);
 
