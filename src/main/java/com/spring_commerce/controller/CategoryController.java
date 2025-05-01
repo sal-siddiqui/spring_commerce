@@ -1,7 +1,5 @@
 package com.spring_commerce.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.spring_commerce.model.Category;
+import com.spring_commerce.payload.CategoryResponse;
 import com.spring_commerce.service.CategoryService;
 
 import jakarta.validation.Valid;
@@ -26,9 +24,9 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/api/public/categories")
-    public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> allCategories = categoryService.getAllCategories();
-        return new ResponseEntity<List<Category>>(allCategories, HttpStatus.OK);
+    public ResponseEntity<CategoryResponse> getAllCategories() {
+        CategoryResponse response = categoryService.getAllCategories();
+        return new ResponseEntity<CategoryResponse>(response, HttpStatus.OK);
     }
 
     @PostMapping("/api/public/categories")
@@ -39,21 +37,14 @@ public class CategoryController {
 
     @DeleteMapping("/api/admin/categories/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
-        try {
-            String message = categoryService.deleteCategory(categoryId);
-            return new ResponseEntity<String>(message, HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<String>(e.getReason(), e.getStatusCode());
-        }
+        String message = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<String>(message, HttpStatus.OK);
     }
 
     @PutMapping("/api/public/categories/{categoryId}")
-    public ResponseEntity<String> updateCategory(@RequestBody Category newCategory, @PathVariable Long categoryId) {
-        try {
-            String message = categoryService.updateCategory(newCategory, categoryId);
-            return new ResponseEntity<String>(message, HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<String>(e.getReason(), e.getStatusCode());
-        }
+    public ResponseEntity<String> updateCategory(@Valid @RequestBody Category newCategory,
+            @PathVariable Long categoryId) {
+        String message = categoryService.updateCategory(newCategory, categoryId);
+        return new ResponseEntity<String>(message, HttpStatus.OK);
     }
 }

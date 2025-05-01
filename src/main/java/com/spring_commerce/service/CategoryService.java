@@ -1,11 +1,10 @@
 package com.spring_commerce.service;
 
-import java.util.List;
-
 import com.spring_commerce.model.Category;
+import com.spring_commerce.payload.CategoryResponse;
 
 public interface CategoryService {
-    List<Category> getAllCategories();
+    CategoryResponse getAllCategories();
 
     String createCategory(Category category);
 
