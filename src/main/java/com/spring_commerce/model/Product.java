@@ -1,19 +1,38 @@
 package com.spring_commerce.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
-    // -- Fields
+    // Auto-generated primary key
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long productId;
+
+    // Required fields from request body
     private String productName;
     private String description;
     private Integer quantity;
     private Double price;
-    private double specialPrice;
+    private Double discount;
 
-    // -- Relationships
+    // Calculated fields
+    private double specialPrice;
+    private String image;
+
+    // Relationships
     @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 }
