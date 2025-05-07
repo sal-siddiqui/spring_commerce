@@ -28,7 +28,7 @@ public class Product {
     private Double discount;
 
     // Calculated fields
-    private double specialPrice;
+    private Double specialPrice;
     private String image;
 
     // Relationships

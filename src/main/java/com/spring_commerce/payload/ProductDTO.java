@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductDTO {
     // Auto-generated primary key
+    @Null(message = "Product ID must be null during creation.")
     private Long productId;
 
     // Required fields from request body
@@ -40,6 +42,9 @@ public class ProductDTO {
     private Double discount;
 
     // Calculated fields
-    private double specialPrice;
+    @Null(message = "Special Price must be null during creation.")
+    private Double specialPrice;
+
+    @Null(message = "Image must be null during creation.")
     private String image;
 }
