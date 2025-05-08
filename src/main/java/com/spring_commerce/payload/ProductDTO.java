@@ -16,13 +16,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductDTO {
     // Auto-generated primary key
-    @Null(message = "Product ID must be null during creation.")
-    private Long productId;
+    @Null(message = "ID must be null during creation.")
+    private Long id;
 
     // Required fields from request body
-    @NotBlank(message = "Product name is required")
+    @NotBlank(message = "Name is required")
     @Column(nullable = false)
-    private String productName;
+    private String name;
 
     @NotBlank(message = "Description is required")
     @Column(nullable = false, length = 1000)

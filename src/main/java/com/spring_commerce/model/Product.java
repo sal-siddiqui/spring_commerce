@@ -18,10 +18,10 @@ public class Product {
     // Auto-generated primary key
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long productId;
+    private Long id;
 
     // Required fields from request body
-    private String productName;
+    private String name;
     private String description;
     private Integer quantity;
     private Double price;

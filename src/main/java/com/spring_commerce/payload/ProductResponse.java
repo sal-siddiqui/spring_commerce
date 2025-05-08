@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
-    private List<ProductDTO> products;
+    private List<ProductDTO> productsDTO;
 }
