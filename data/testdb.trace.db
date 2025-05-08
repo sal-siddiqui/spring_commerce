@@ -1,0 +1,3 @@
+2025-05-08 13:22:14.180362+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "CATEGORIES" not found; SQL statement:
+select c1_0.category_id,c1_0.category_name from categories c1_0 order by c1_0.category_id offset ? rows fetch first ? rows only [42102-232]

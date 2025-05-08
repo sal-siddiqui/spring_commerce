@@ -17,7 +17,7 @@ import com.spring_commerce.repositories.CategoryRepository;
 import com.spring_commerce.repositories.ProductRepository;
 
 @Service
-public class ProductServiceImplementer implements ProductService {
+public class ProductServiceImplementer extends BaseService implements ProductService {
 
   @Autowired
   private ProductRepository productRepository;
@@ -30,6 +30,7 @@ public class ProductServiceImplementer implements ProductService {
 
   @Override
   public ProductDTO createProduct(ProductDTO newProductDTO, Long categoryId) {
+
     Optional<Category> existingCategory = categoryRepository.findById(categoryId);
 
     if (existingCategory.isEmpty())
@@ -64,11 +65,8 @@ public class ProductServiceImplementer implements ProductService {
 
   @Override
   public ProductResponse getProductsbyCategoryId(Long categoryId) {
-    Boolean categoryExists = categoryRepository.existsById(categoryId);
 
-    if (!categoryExists) {
-      throw new ResourceNotFoundException("Category", "categoryId", categoryId);
-    }
+    Category _ = getOrThrow(categoryRepository, categoryId, "Category");
 
     List<Product> allProducts = productRepository.findByCategoryCategoryId(categoryId);
 
