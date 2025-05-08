@@ -42,7 +42,9 @@ public class ProductServiceImplementer extends BaseService implements ProductSer
 
     newProduct.setCategory(existingCategory.get());
 
-    double specialPrice = newProductDTO.getPrice() * (100 - newProductDTO.getDiscount()) / 100;
+    double specialPrice = newProductDTO.getSpecialPrice();
+    // double specialPrice = newProductDTO.getPrice() * (100 -
+    // newProductDTO.getDiscount()) / 100;
     newProduct.setSpecialPrice(specialPrice);
 
     newProduct.setImage("default.png");

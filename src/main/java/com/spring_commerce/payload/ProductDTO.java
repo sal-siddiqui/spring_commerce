@@ -47,4 +47,8 @@ public class ProductDTO {
 
     @Null(message = "Image must be null during creation.")
     private String image;
+
+    public Double getSpecialPrice() {
+        return this.price * (100 - this.discount) / 100;
+    }
 }
