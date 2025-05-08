@@ -16,6 +16,8 @@ import com.spring_commerce.payload.ProductResponse;
 import com.spring_commerce.repositories.CategoryRepository;
 import com.spring_commerce.repositories.ProductRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ProductServiceImplementer extends BaseService implements ProductService {
 
@@ -86,5 +88,19 @@ public class ProductServiceImplementer extends BaseService implements ProductSer
         .collect(Collectors.toList());
 
     return new ProductResponse(allProductsDTO);
+  }
+
+  @Override
+  @Transactional
+  public ProductDTO updateProduct(ProductDTO newProductDTO, Long productId) {
+    Product productFromDB = getOrThrow(productRepository, productId, "Product");
+
+    Product newProduct = modelMapper.map(newProductDTO, Product.class);
+
+    modelMapper.map(newProduct, productFromDB);
+
+    ProductDTO updatedProductDTO = modelMapper.map(productFromDB, ProductDTO.class);
+
+    return updatedProductDTO;
   }
 }
