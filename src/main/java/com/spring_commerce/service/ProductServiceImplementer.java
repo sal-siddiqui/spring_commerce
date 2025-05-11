@@ -1,5 +1,6 @@
 package com.spring_commerce.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spring_commerce.exceptions.ResourceNotFoundException;
 import com.spring_commerce.model.Category;
@@ -15,11 +17,10 @@ import com.spring_commerce.payload.ProductDTO;
 import com.spring_commerce.payload.ProductResponse;
 import com.spring_commerce.repositories.CategoryRepository;
 import com.spring_commerce.repositories.ProductRepository;
-
-import jakarta.transaction.Transactional;
+import com.spring_commerce.utils.AppUtils;
 
 @Service
-public class ProductServiceImplementer extends BaseService implements ProductService {
+public class ProductServiceImplementer extends BaseServiceImplementer implements ProductService {
 
   @Autowired
   private ProductRepository productRepository;
@@ -46,7 +47,6 @@ public class ProductServiceImplementer extends BaseService implements ProductSer
     // double specialPrice = newProductDTO.getPrice() * (100 -
     // newProductDTO.getDiscount()) / 100;
     newProduct.setSpecialPrice(specialPrice);
-
     newProduct.setImage("default.png");
 
     Product savedProduct = productRepository.save(newProduct);
@@ -93,15 +93,36 @@ public class ProductServiceImplementer extends BaseService implements ProductSer
   }
 
   @Override
-  @Transactional
   public ProductDTO updateProduct(ProductDTO newProductDTO, Long productId) {
     Product productFromDB = getOrThrow(productRepository, productId, "Product");
 
-    Product newProduct = modelMapper.map(newProductDTO, Product.class);
+    modelMapper.map(newProductDTO, productFromDB);
 
-    modelMapper.map(newProduct, productFromDB);
+    Product updatedProduct = productRepository.save(productFromDB);
 
-    ProductDTO updatedProductDTO = modelMapper.map(productFromDB, ProductDTO.class);
+    ProductDTO updatedProductDTO = modelMapper.map(updatedProduct, ProductDTO.class);
+
+    return updatedProductDTO;
+  }
+
+  @Override
+  public void deleteProduct(Long productId) {
+    Product productFromDB = getOrThrow(productRepository, productId, "Product");
+    productRepository.delete(productFromDB);
+
+  }
+
+  @Override
+  public ProductDTO updateProductImage(Long productId, MultipartFile imagefile) throws IOException {
+    Product productFromdB = getOrThrow(productRepository, productId, "Product");
+
+    String path = "/images";
+    String fileName = AppUtils.uploadImage(path, imagefile);
+
+    productFromdB.setImage(fileName);
+    Product updatedProduct = productRepository.save(productFromdB);
+
+    ProductDTO updatedProductDTO = modelMapper.map(updatedProduct, ProductDTO.class);
 
     return updatedProductDTO;
   }

@@ -1,0 +1,1 @@
+https://medium.com/@davoud.badamchi/understanding-jpa-relationships-manytomany-onetomany-and-onetoone-ab84aa1953c1

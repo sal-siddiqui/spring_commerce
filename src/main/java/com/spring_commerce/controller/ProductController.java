@@ -1,14 +1,19 @@
 package com.spring_commerce.controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spring_commerce.payload.ProductDTO;
 import com.spring_commerce.payload.ProductResponse;
@@ -56,6 +61,22 @@ public class ProductController {
   public ResponseEntity<ProductDTO> updateProduct(@Valid @RequestBody ProductDTO newProductDTO,
       @PathVariable Long productId) {
     ProductDTO updatedProductDTO = productService.updateProduct(newProductDTO, productId);
+    return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
+  }
+
+  // Delete Product
+  @DeleteMapping("/api/admin/products/{productId}")
+  public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId) {
+    productService.deleteProduct(productId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  // Update Product Image
+  @PutMapping("/api/products/{productId}/image")
+  public ResponseEntity<ProductDTO> updateProductImage(
+      @PathVariable Long productId,
+      @RequestParam("image") MultipartFile imageFile) throws IOException {
+    ProductDTO updatedProductDTO = productService.updateProductImage(productId, imageFile);
     return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
   }
 
