@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.spring_commerce.exceptions.ResourceNotFoundException;
 
 public abstract class BaseServiceImplementer {
-    public <T> Boolean resourceExists(JpaRepository<T, Long> repository, Long id) {
+    public <T> Boolean checkResourceExists(JpaRepository<T, Long> repository, Long id) {
         return repository.existsById(id);
     }
 
@@ -21,4 +21,5 @@ public abstract class BaseServiceImplementer {
         T resource = optionalResource.get();
         return resource;
     }
+
 }

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "com.spring_commerce.model")
 @EnableJpaRepositories(basePackages = "com.spring_commerce.repositories")
 public class App {
-
   public static void main(String[] args) {
     SpringApplication.run(App.class, args);
   }

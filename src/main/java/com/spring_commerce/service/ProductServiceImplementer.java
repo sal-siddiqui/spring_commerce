@@ -2,14 +2,15 @@ package com.spring_commerce.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spring_commerce.exceptions.APIException;
 import com.spring_commerce.exceptions.ResourceNotFoundException;
 import com.spring_commerce.model.Category;
 import com.spring_commerce.model.Product;
@@ -31,35 +32,33 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
   @Autowired
   private ModelMapper modelMapper;
 
+  @Value("${project.image}")
+  private String path;
+
   @Override
   public ProductDTO createProduct(ProductDTO newProductDTO, Long categoryId) {
 
-    Optional<Category> existingCategory = categoryRepository.findById(categoryId);
+    Category category = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ResourceNotFoundException("Category", "ID", categoryId));
 
-    if (existingCategory.isEmpty())
-      throw new ResourceNotFoundException("Category", "categoryId", categoryId);
+    if (productRepository.existsByName(newProductDTO.getName())) {
+      throw new APIException("Product with the name " + newProductDTO.getName() + " already exists.");
+    }
 
     Product newProduct = modelMapper.map(newProductDTO, Product.class);
 
-    newProduct.setCategory(existingCategory.get());
+    newProduct.setCategory(category);
 
-    double specialPrice = newProductDTO.getSpecialPrice();
-    // double specialPrice = newProductDTO.getPrice() * (100 -
-    // newProductDTO.getDiscount()) / 100;
-    newProduct.setSpecialPrice(specialPrice);
+    newProduct.setSpecialPrice(newProductDTO.getSpecialPrice());
     newProduct.setImage("default.png");
 
     Product savedProduct = productRepository.save(newProduct);
-    ProductDTO savedProductDTO = modelMapper.map(savedProduct, ProductDTO.class);
-
-    return savedProductDTO;
+    return modelMapper.map(savedProduct, ProductDTO.class);
   }
 
   @Override
   public ProductResponse getAllProducts() {
-    List<Product> allProducts = productRepository.findAll();
-
-    List<ProductDTO> allProductsDTO = allProducts.stream()
+    List<ProductDTO> allProductsDTO = productRepository.findAll().stream()
         .map(product -> modelMapper.map(product, ProductDTO.class))
         .collect(Collectors.toList());
 
@@ -70,11 +69,9 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
   @Override
   public ProductResponse getProductsbyCategoryId(Long categoryId) {
 
-    Category _ = getOrThrow(categoryRepository, categoryId, "Category");
+    getOrThrow(categoryRepository, categoryId, "Category");
 
-    List<Product> allProducts = productRepository.findByCategoryCategoryId(categoryId);
-
-    List<ProductDTO> allProductsDTO = allProducts.stream()
+    List<ProductDTO> allProductsDTO = productRepository.findByCategoryId(categoryId).stream()
         .map(product -> modelMapper.map(product, ProductDTO.class))
         .collect(Collectors.toList());
 
@@ -83,9 +80,7 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
   @Override
   public ProductResponse getProductsbyKeyword(String keyword) {
-    List<Product> allProducts = productRepository.findByNameContainingIgnoreCase(keyword);
-
-    List<ProductDTO> allProductsDTO = allProducts.stream()
+    List<ProductDTO> allProductsDTO = productRepository.findByNameContainingIgnoreCase(keyword).stream()
         .map(product -> modelMapper.map(product, ProductDTO.class))
         .collect(Collectors.toList());
 
@@ -99,31 +94,23 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
     modelMapper.map(newProductDTO, productFromDB);
 
     Product updatedProduct = productRepository.save(productFromDB);
-
-    ProductDTO updatedProductDTO = modelMapper.map(updatedProduct, ProductDTO.class);
-
-    return updatedProductDTO;
+    return modelMapper.map(updatedProduct, ProductDTO.class);
   }
 
   @Override
   public void deleteProduct(Long productId) {
     Product productFromDB = getOrThrow(productRepository, productId, "Product");
     productRepository.delete(productFromDB);
-
   }
 
   @Override
   public ProductDTO updateProductImage(Long productId, MultipartFile imagefile) throws IOException {
-    Product productFromdB = getOrThrow(productRepository, productId, "Product");
+    Product productFromDB = getOrThrow(productRepository, productId, "Product");
 
-    String path = "/images";
     String fileName = AppUtils.uploadImage(path, imagefile);
+    productFromDB.setImage(fileName);
 
-    productFromdB.setImage(fileName);
-    Product updatedProduct = productRepository.save(productFromdB);
-
-    ProductDTO updatedProductDTO = modelMapper.map(updatedProduct, ProductDTO.class);
-
-    return updatedProductDTO;
+    Product updatedProduct = productRepository.save(productFromDB);
+    return modelMapper.map(updatedProduct, ProductDTO.class);
   }
 }

@@ -8,6 +8,8 @@ import com.spring_commerce.model.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    Category findByCategoryName(String categoryName);
+    Category findByName(String name);
+
+    Boolean existsByName(String name);
 
 }

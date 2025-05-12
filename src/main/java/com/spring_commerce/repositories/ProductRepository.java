@@ -10,8 +10,10 @@ import com.spring_commerce.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    List<Product> findByCategoryCategoryId(Long categoryId);
+    List<Product> findByCategoryId(Long categoryId);
 
     List<Product> findByNameContainingIgnoreCase(String keyword);
+
+    Boolean existsByName(String name);
 
 }
