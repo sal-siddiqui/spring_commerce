@@ -5,9 +5,6 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.spring_commerce.exceptions.APIException;
@@ -27,26 +24,28 @@ public class CategoryServiceImplementer extends BaseServiceImplementer implement
 
     @Override
     public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sort = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        Page<Category> categoryPage = getPaginatedResponse(
+                categoryRepository,
+                Category.class,
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortOrder);
 
         List<CategoryDTO> categoryDTOs = categoryPage.getContent().stream()
                 .map(category -> modelMapper.map(category, CategoryDTO.class))
                 .toList();
 
-        CategoryResponse response = new CategoryResponse();
-        response.setContent(categoryDTOs);
-        response.setPageNumber(categoryPage.getNumber());
-        response.setPageSize(categoryPage.getSize());
-        response.setTotalElements(categoryPage.getTotalElements());
-        response.setTotalpages(categoryPage.getTotalPages());
-        response.setLastPage(categoryPage.isLast());
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setContent(categoryDTOs);
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalpages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
 
-        return response;
+        return categoryResponse;
     }
 
     @Override
