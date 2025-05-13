@@ -1,4 +1,4 @@
-# spring-commerce
+# spring_commerce
 
 ## 📝 Project Overview
 
