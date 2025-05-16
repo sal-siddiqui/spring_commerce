@@ -9,8 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
+
+import com.spring_commerce.security.services.UserDetailsImplementation;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,6 +21,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ConfigurationProperties(prefix = "spring.app")
@@ -32,6 +36,9 @@ public class JwtUtils {
     @Value("${spring.app.jwtSecret}")
     private String JwtSecret;
 
+    @Value("${spring.ecom.app.jwtCookieName}")
+    private String jwtCookie;
+
     public String getJwtFromHeader(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         logger.debug(String.format("Authorization Header: %s", token));
@@ -45,8 +52,24 @@ public class JwtUtils {
         return token.substring("Bearer ".length());
     }
 
-    public String generateTokenFromUsername(UserDetails userDetails) {
-        String username = userDetails.getUsername();
+    // Retrieves the JWT token from cookies in the HTTP request
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        return (cookie != null) ? cookie.getValue() : null;
+    }
+
+    // Generates a JWT cookie for the authenticated user
+    public ResponseCookie generateJwtCookie(UserDetailsImplementation userPrincipal) {
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+
+        return ResponseCookie.from(jwtCookie, jwt)
+                .path("/api")
+                .maxAge(24 * 60 * 60) // 1 day in seconds
+                .httpOnly(false)
+                .build();
+    }
+
+    public String generateTokenFromUsername(String username) {
 
         return Jwts.builder()
                 .subject(username)
