@@ -19,10 +19,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.spring_commerce.model.AppRole;
 import com.spring_commerce.model.Role;
@@ -38,7 +39,7 @@ import com.spring_commerce.security.services.UserDetailsImplementation;
 
 import jakarta.validation.Valid;
 
-@Controller
+@RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -60,29 +61,12 @@ public class AuthController {
     // Handles user authentication and returns a JWT cookie upon success
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication;
         try {
-            Authentication authentication = authenticationManger.authenticate(
+            authentication = authenticationManger.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            UserDetailsImplementation userDetails = (UserDetailsImplementation) authentication.getPrincipal();
-            ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-
-            List<String> roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-
-            LoginResponse response = new LoginResponse(
-                    userDetails.getId(),
-                    userDetails.getUsername(),
-                    roles);
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                    .body(response);
 
         } catch (AuthenticationException e) {
             // Returns error response for failed authentication
@@ -91,6 +75,25 @@ public class AuthController {
             error.put("status", false);
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserDetailsImplementation userDetails = (UserDetailsImplementation) authentication.getPrincipal();
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        LoginResponse response = new LoginResponse(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(response);
+
     }
 
     // Handles user registration
@@ -142,4 +145,44 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    // Returns the current username if authenticated; otherwise, returns an empty
+    // string
+    @GetMapping("/username")
+    public String getUsername(Authentication authentication) {
+        return (authentication != null) ? authentication.getName() : "";
+    }
+
+    // Returns authenticated user details
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(Authentication authentication) {
+
+        if (authentication == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("You must be logged in."));
+        }
+
+        // Extract user details from authentication principal
+        UserDetailsImplementation userDetails = (UserDetailsImplementation) authentication.getPrincipal();
+
+        // Convert authorities to a list of role names
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        // Create response with user ID, username, and roles
+        LoginResponse response = new LoginResponse(
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    // Handles user sign-out by clearing the JWT cookie
+    @PostMapping("/signout")
+    public ResponseEntity<?> signoutUser() {
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString()) // Clear the JWT cookie
+                .body(new MessageResponse("You have been signed out."));
+    }
 }

@@ -36,25 +36,25 @@ public class JwtUtils {
     @Value("${spring.app.jwtSecret}")
     private String JwtSecret;
 
-    @Value("${spring.ecom.app.jwtCookieName}")
-    private String jwtCookie;
+    @Value("${spring.app.jwtCookieName}")
+    private String jwtCookieName;
 
-    public String getJwtFromHeader(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        logger.debug(String.format("Authorization Header: %s", token));
+    // public String getJwtFromHeader(HttpServletRequest request) {
+    // String token = request.getHeader("Authorization");
+    // logger.debug(String.format("Authorization Header: %s", token));
 
-        // Return null if header is missing or does not start with expected prefix
-        if (token == null || !token.startsWith("Bearer ")) {
-            return null;
-        }
+    // // Return null if header is missing or does not start with expected prefix
+    // if (token == null || !token.startsWith("Bearer ")) {
+    // return null;
+    // }
 
-        // Extracts the token part after "Bearer "
-        return token.substring("Bearer ".length());
-    }
+    // // Extracts the token part after "Bearer "
+    // return token.substring("Bearer ".length());
+    // }
 
     // Retrieves the JWT token from cookies in the HTTP request
     public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        Cookie cookie = WebUtils.getCookie(request, jwtCookieName);
         return (cookie != null) ? cookie.getValue() : null;
     }
 
@@ -62,41 +62,45 @@ public class JwtUtils {
     public ResponseCookie generateJwtCookie(UserDetailsImplementation userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());
 
-        return ResponseCookie.from(jwtCookie, jwt)
+        return ResponseCookie.from(jwtCookieName, jwt)
                 .path("/api")
                 .maxAge(24 * 60 * 60) // 1 day in seconds
                 .httpOnly(false)
                 .build();
     }
 
+    // Generates a JWT token for the given username
     public String generateTokenFromUsername(String username) {
-
         return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + JwtExpirationMs))
-                .signWith(key())
-                .compact();
+                .subject(username) // Set subject as username
+                .issuedAt(new Date()) // Token issue time
+                .expiration(new Date(System.currentTimeMillis() + JwtExpirationMs)) // Token expiration
+                .signWith(key()) // Sign with secret key
+                .compact(); // Build the token
     }
 
+    // Extracts the username (subject) from a valid JWT token
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parser()
-                .verifyWith((SecretKey) key())
-                .build().parseSignedClaims(token)
-                .getPayload().getSubject();
+                .verifyWith((SecretKey) key()) // Verify token with signing key
+                .build()
+                .parseSignedClaims(token) // Parse the JWT
+                .getPayload()
+                .getSubject(); // Return the subject (username)
     }
 
+    // Generates the signing key from the Base64-encoded JWT secret
     public Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(JwtSecret));
     }
 
+    // Validates the JWT token; returns true if valid, false otherwise
     public Boolean validateJwtToken(String authToken) {
         try {
-            // Parse and validate the token
             Jwts.parser()
-                    .verifyWith((SecretKey) key())
+                    .verifyWith((SecretKey) key()) // Validate signature with secret key
                     .build()
-                    .parseSignedClaims(authToken);
+                    .parseSignedClaims(authToken); // Parse and validate token
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: Malformed", e);
@@ -110,4 +114,12 @@ public class JwtUtils {
 
         return false;
     }
+
+    // Returns a cleared JWT cookie (used for logout or invalidation)
+    public ResponseCookie getCleanJwtCookie() {
+        return ResponseCookie.from(jwtCookieName, null)
+                .path("/api")
+                .build();
+    }
+
 }
