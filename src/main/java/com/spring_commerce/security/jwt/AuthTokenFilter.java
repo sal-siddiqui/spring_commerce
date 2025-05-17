@@ -47,6 +47,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities());
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 logger.debug("Roles from JWT: {}", userDetails.getAuthorities());
@@ -60,7 +61,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromHeader(request);
+        String jwt = jwtUtils.getJwtFromCookies(request);
         logger.debug(String.format("AuthtokenFilter.java: %s", jwt));
         return jwt;
     }
