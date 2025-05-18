@@ -6,4 +6,6 @@ import com.spring_commerce.model.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
+    CartItem findByCartIdAndProductId(Long id, Long productId);
+
 }

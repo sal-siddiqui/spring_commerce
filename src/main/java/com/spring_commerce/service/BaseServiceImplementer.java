@@ -28,8 +28,8 @@ public abstract class BaseServiceImplementer {
     public <T> Pageable getPageable(Class<T> entityClass, Integer pageNumber, Integer pageSize,
             String sortBy, String sortOrder) {
 
-        if (pageNumber <= 0) {
-            throw new APIException("Page number must be a non-negative, positive integer.");
+        if (pageNumber < 0) {
+            throw new APIException("Page number must be a non-negative integer.");
         }
 
         if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {

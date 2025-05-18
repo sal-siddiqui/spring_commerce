@@ -9,4 +9,6 @@ import com.spring_commerce.model.Role;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByAppRole(AppRole appRole);
+
+    Boolean existsByAppRole(AppRole appRole);
 }

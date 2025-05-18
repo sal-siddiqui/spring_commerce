@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Entity()
+@Entity
 @Table(name = "products")
 @Data
 @NoArgsConstructor
@@ -47,7 +47,7 @@ public class Product {
     private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id", nullable = false)
+    @JoinColumn(name = "seller_id", nullable = true)
     private User user;
 
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
