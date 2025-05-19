@@ -2,6 +2,7 @@ package com.spring_commerce.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import com.spring_commerce.repositories.CartItemRepository;
 import com.spring_commerce.repositories.CartRepository;
 import com.spring_commerce.repositories.ProductRepository;
 import com.spring_commerce.utils.AuthUtils;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CartServiceImplementer extends BaseServiceImplementer implements CartService {
@@ -37,8 +40,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
     AuthUtils authUtil;
 
     /**
-     * Adds a product to the cart with the specified quantity and returns the
-     * updated cart DTO.
+     * Adds a product to the cart and returns the updated cart.
      */
     @Override
     public CartDTO addProductToCart(Long productId, Integer count) {
@@ -116,8 +118,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
     }
 
     /**
-     * Retrieves all carts from the repository, maps them to CartDTOs,
-     * and includes mapped ProductDTOs for each cart item.
+     * Retrieves all carts from the repository.
      */
     @Override
     public List<CartDTO> getCarts() {
@@ -134,13 +135,128 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
                     // Map each product in cart items to ProductDTO
                     List<ProductDTO> productDTOs = cart.getItems().stream()
-                            .map(item -> modelMapper.map(item.getProduct(), ProductDTO.class))
+                            .map(item -> {
+                                ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
+                                productDTO.setQuantity(item.getQuantity());
+                                return productDTO;
+                            })
                             .collect(Collectors.toList());
 
                     cartDTO.setProducts(productDTOs);
                     return cartDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the current user's shopping cart.
+     */
+    @Override
+    public CartDTO getCart() {
+        // Retrieve the logged-in user's email
+        String userEmail = authUtil.loggedInEmail();
+
+        // Fetch the user's cart or throw if not found
+        Cart cart = cartRepository.findByUserEmail(userEmail);
+        if (cart == null) {
+            throw new APIException("Cart not found for user: " + userEmail);
+        }
+
+        // Map cart to DTO
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+        // Map each cart item to a ProductDTO with quantity
+        cartDTO.setProducts(
+                cart.getItems().stream()
+                        .map(item -> {
+                            ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
+                            productDTO.setQuantity(item.getQuantity());
+                            return productDTO;
+                        })
+                        .toList());
+
+        return cartDTO;
+    }
+
+    /**
+     * Updates the current user's shopping cart.
+     */
+    @Override
+    @Transactional
+    public CartDTO updateCartProduct(Long productId, int quantityChange) {
+        // Get the current user's cart ID
+        Long cartId = authUtil.loggedInUser().getCart().getId();
+
+        // Fetch the cart and product, or throw an exception if not found
+        Cart cart = getOrThrow(cartRepository, cartId, "Cart");
+        Product product = getOrThrow(productRepository, productId, "Product");
+
+        // Find the cart item for the given product
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
+
+        if (cartItem == null) {
+            throw new APIException("Cart item not found.");
+        }
+
+        int newQuantity = cartItem.getQuantity() + quantityChange;
+
+        if (newQuantity < 0) {
+            throw new APIException("...");
+        }
+
+        if (newQuantity == 0) {
+            deleteProductFromCart(cartId, productId);
+        } else {
+            cartItem.setProductPrice(product.getSpecialPrice());
+            cartItem.setQuantity(cartItem.getQuantity() + quantityChange);
+            cartItem.setDiscount(product.getDiscount());
+            cart.setTotalPrice(cart.getTotalPrice() + cartItem.getProductPrice() * quantityChange);
+
+            cartRepository.save(cart);
+        }
+
+        CartItem updatedItem = cartItemRepository.save(cartItem);
+
+        if (updatedItem.getQuantity() == 0) {
+            cartItemRepository.deleteById(updatedItem.getId());
+        }
+
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+        List<CartItem> cartItems = cart.getItems();
+
+        Stream<ProductDTO> productStream = cartItems.stream().map(item -> {
+            ProductDTO prd = modelMapper.map(item.getProduct(), ProductDTO.class);
+            prd.setQuantity(item.getQuantity());
+            return prd;
+        });
+
+        cartDTO.setProducts(productStream.toList());
+
+        return cartDTO;
+
+    }
+
+    @Override
+    @Transactional
+    public String deleteProductFromCart(Long cartId, Long productId) {
+        // Fetch the cart and product, or throw an exception if not found
+        Cart cart = getOrThrow(cartRepository, cartId, "Cart");
+        Product product = getOrThrow(productRepository, productId, "Product");
+
+        // Find the cart item for the given product
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
+
+        if (cartItem == null) {
+            throw new APIException("Cart item not found.");
+        }
+
+        cart.setTotalPrice(cart.getTotalPrice() - cartItem.getProductPrice() * cartItem.getQuantity());
+
+        cartItemRepository.deleteCartItemByProductIdAndCartId(cartId, productId);
+
+        return String.format("Product '%s' removed from cart.", product.getName());
+
     }
 
 }

@@ -6,4 +6,5 @@ import com.spring_commerce.model.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
     Cart findByUserEmail(String email);
+
 }

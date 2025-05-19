@@ -10,4 +10,10 @@ public interface CartService {
 
     List<CartDTO> getCarts();
 
+    CartDTO getCart();
+
+    CartDTO updateCartProduct(Long productId, int delete);
+
+    String deleteProductFromCart(Long cartId, Long productId);
+
 }
