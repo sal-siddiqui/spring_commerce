@@ -259,4 +259,25 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
     }
 
+    @Override
+    public void updateProductInCarts(Long id, Long productId) {
+        Cart cart = getOrThrow(cartRepository, id, "Cart");
+        Product product = getOrThrow(productRepository, productId, "Product");
+
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(id, productId);
+
+        if (cartItem == null) {
+            throw new APIException("...");
+        }
+
+        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
+
+        cartItem.setProductPrice(product.getSpecialPrice());
+
+        cart.setTotalPrice(cartPrice + (cartItem.getProductPrice() * cartItem.getQuantity()));
+
+        cartItem = cartItemRepository.save(cartItem);
+
+    }
+
 }
