@@ -9,20 +9,20 @@ import com.spring_commerce.payload.ProductResponse;
 
 public interface ProductService {
 
-    ProductDTO createProduct(ProductDTO newProductDTO, Long categoryId);
+        ProductDTO createProduct(ProductDTO newProductDTO, Long categoryId);
 
-    ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+        ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    ProductResponse getProductsbyCategoryId(Long categoryId, int pageNumber, int pageSize, String sortBy,
-            String sortOrder);
+        ProductResponse getProductsbyCategoryId(Long categoryId, int pageNumber, int pageSize, String sortBy,
+                        String sortOrder);
 
-    ProductResponse getProductsbyKeyword(String keyword, int pageNumber, int pageSize, String sortBy,
-            String sortOrder);
+        ProductResponse getProductsbyKeyword(String keyword, int pageNumber, int pageSize, String sortBy,
+                        String sortOrder);
 
-    ProductDTO updateProduct(ProductDTO newProductDTO, Long productId);
+        ProductDTO updateProduct(ProductDTO newProductDTO, Long productId);
 
-    void deleteProduct(Long productId);
+        void deleteProduct(Long productId);
 
-    ProductDTO updateProductImage(Long productId, MultipartFile imageFile) throws IOException;
+        ProductDTO updateProductImage(Long productId, MultipartFile imageFile) throws IOException;
 
 }

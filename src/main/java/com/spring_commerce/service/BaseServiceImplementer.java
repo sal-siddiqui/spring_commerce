@@ -1,7 +1,6 @@
 package com.spring_commerce.service;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,30 +12,24 @@ import com.spring_commerce.exceptions.APIException;
 import com.spring_commerce.exceptions.ResourceNotFoundException;
 
 public abstract class BaseServiceImplementer {
+    // Checks if a resource with the given ID exists in the repository
     public <T> Boolean checkResourceExists(JpaRepository<T, Long> repository, Long id) {
         return repository.existsById(id);
     }
 
+    // Retrieves a resource by ID or throws a ResourceNotFoundException if not found
     public <T> T getOrThrow(JpaRepository<T, Long> repository, Long id, String resourceName) {
-        Optional<T> optionalResource = repository.findById(id);
-
-        if (optionalResource.isEmpty()) {
-            throw new ResourceNotFoundException(resourceName, "ID", id);
-        }
-
-        T resource = optionalResource.get();
-        return resource;
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(resourceName, "ID", id));
     }
 
-    public <T> Pageable getPageable(Class<T> entityClass, Integer pageNumber, Integer pageSize, String sortBy,
-            String sortOrder) {
+    // Builds a Pageable object with validation for page, size, sort field, and
+    // order
+    public <T> Pageable getPageable(Class<T> entityClass, Integer pageNumber, Integer pageSize,
+            String sortBy, String sortOrder) {
 
         if (pageNumber < 0) {
             throw new APIException("Page number must be a non-negative integer.");
-        }
-
-        if (pageSize <= 0) {
-            throw new APIException("Page size must be a positive integer.");
         }
 
         if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
@@ -55,9 +48,10 @@ public abstract class BaseServiceImplementer {
                 : Sort.by(sortBy).descending();
 
         return PageRequest.of(pageNumber, pageSize, sort);
-
     }
 
+    // Retrieves a paginated and sorted page of entities or throws an exception if
+    // invalid
     public <T> Page<T> getPaginatedResponse(
             JpaRepository<T, Long> repository,
             Class<T> entityClass,
