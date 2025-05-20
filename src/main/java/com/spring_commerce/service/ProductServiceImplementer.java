@@ -53,7 +53,8 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
         .orElseThrow(() -> new ResourceNotFoundException("Category", "ID", categoryId));
 
     if (productRepository.existsByName(newProductDTO.getName())) {
-      throw new APIException("Product with the name " + newProductDTO.getName() + " already exists.");
+      throw new APIException(
+          "Product with the name " + newProductDTO.getName() + " already exists.");
     }
 
     Product newProduct = modelMapper.map(newProductDTO, Product.class);
@@ -68,19 +69,14 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
   }
 
   @Override
-  public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+  public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy,
+      String sortOrder) {
 
-    Page<Product> productPage = getPaginatedResponse(
-        productRepository,
-        Product.class,
-        pageNumber,
-        pageSize,
-        sortBy,
-        sortOrder);
+    Page<Product> productPage = getPaginatedResponse(productRepository, Product.class, pageNumber,
+        pageSize, sortBy, sortOrder);
 
     List<ProductDTO> productDTOs = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class))
-        .collect(Collectors.toList());
+        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
 
     ProductResponse productResponse = new ProductResponse();
     productResponse.setContent(productDTOs);
@@ -95,8 +91,8 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
   }
 
   @Override
-  public ProductResponse getProductsbyCategoryId(Long categoryId, int pageNumber, int pageSize, String sortBy,
-      String sortOrder) {
+  public ProductResponse getProductsbyCategoryId(Long categoryId, int pageNumber, int pageSize,
+      String sortBy, String sortOrder) {
 
     getOrThrow(categoryRepository, categoryId, "Category");
 
@@ -108,21 +104,15 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
     }
 
     List<ProductDTO> productsDTO = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class))
-        .collect(Collectors.toList());
+        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
 
-    return new ProductResponse(
-        productsDTO,
-        productPage.getNumber(),
-        productPage.getSize(),
-        productPage.getTotalElements(),
-        productPage.getTotalPages(),
-        productPage.isLast());
+    return new ProductResponse(productsDTO, productPage.getNumber(), productPage.getSize(),
+        productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
   @Override
-  public ProductResponse getProductsbyKeyword(String keyword, int pageNumber, int pageSize, String sortBy,
-      String sortOrder) {
+  public ProductResponse getProductsbyKeyword(String keyword, int pageNumber, int pageSize,
+      String sortBy, String sortOrder) {
 
     Pageable pageable = getPageable(Product.class, pageNumber, pageSize, sortBy, sortOrder);
     Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
@@ -132,16 +122,10 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
     }
 
     List<ProductDTO> productsDTO = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class))
-        .collect(Collectors.toList());
+        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
 
-    return new ProductResponse(
-        productsDTO,
-        productPage.getNumber(),
-        productPage.getSize(),
-        productPage.getTotalElements(),
-        productPage.getTotalPages(),
-        productPage.isLast());
+    return new ProductResponse(productsDTO, productPage.getNumber(), productPage.getSize(),
+        productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
   @Override
@@ -156,8 +140,8 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
     List<CartDTO> cartDTOs = carts.stream().map(cart -> {
       CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-      List<ProductDTO> products = cart.getItems().stream().map(p -> modelMapper.map(p.getProduct(), ProductDTO.class))
-          .toList();
+      List<ProductDTO> products = cart.getItems().stream()
+          .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
       cartDTO.setProducts(products);
       return cartDTO;
     }).toList();

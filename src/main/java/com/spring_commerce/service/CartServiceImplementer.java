@@ -53,7 +53,8 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         // Check if product already exists in cart
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
         if (cartItem != null) {
-            throw new APIException(String.format("Product '%s' already exists in cart.", product.getName()));
+            throw new APIException(
+                    String.format("Product '%s' already exists in cart.", product.getName()));
         }
 
         // Validate product stock quantity
@@ -84,14 +85,11 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
         List<CartItem> cartItems = cart.getItems();
 
-        cartDTO.setProducts(
-                cartItems.stream()
-                        .map(item -> {
-                            ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
-                            productDTO.setQuantity(item.getQuantity());
-                            return productDTO;
-                        })
-                        .toList());
+        cartDTO.setProducts(cartItems.stream().map(item -> {
+            ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
+            productDTO.setQuantity(item.getQuantity());
+            return productDTO;
+        }).toList());
 
         return cartDTO;
     }
@@ -128,24 +126,20 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
             throw new APIException("No carts available");
         }
 
-        return carts.stream()
-                .map(cart -> {
-                    // Map Cart to CartDTO
-                    CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        return carts.stream().map(cart -> {
+            // Map Cart to CartDTO
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
 
-                    // Map each product in cart items to ProductDTO
-                    List<ProductDTO> productDTOs = cart.getItems().stream()
-                            .map(item -> {
-                                ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
-                                productDTO.setQuantity(item.getQuantity());
-                                return productDTO;
-                            })
-                            .collect(Collectors.toList());
+            // Map each product in cart items to ProductDTO
+            List<ProductDTO> productDTOs = cart.getItems().stream().map(item -> {
+                ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
+                productDTO.setQuantity(item.getQuantity());
+                return productDTO;
+            }).collect(Collectors.toList());
 
-                    cartDTO.setProducts(productDTOs);
-                    return cartDTO;
-                })
-                .collect(Collectors.toList());
+            cartDTO.setProducts(productDTOs);
+            return cartDTO;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -166,14 +160,11 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
 
         // Map each cart item to a ProductDTO with quantity
-        cartDTO.setProducts(
-                cart.getItems().stream()
-                        .map(item -> {
-                            ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
-                            productDTO.setQuantity(item.getQuantity());
-                            return productDTO;
-                        })
-                        .toList());
+        cartDTO.setProducts(cart.getItems().stream().map(item -> {
+            ProductDTO productDTO = modelMapper.map(item.getProduct(), ProductDTO.class);
+            productDTO.setQuantity(item.getQuantity());
+            return productDTO;
+        }).toList());
 
         return cartDTO;
     }
@@ -251,7 +242,8 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
             throw new APIException("Cart item not found.");
         }
 
-        cart.setTotalPrice(cart.getTotalPrice() - cartItem.getProductPrice() * cartItem.getQuantity());
+        cart.setTotalPrice(
+                cart.getTotalPrice() - cartItem.getProductPrice() * cartItem.getQuantity());
 
         cartItemRepository.deleteCartItemByProductIdAndCartId(cartId, productId);
 
@@ -270,7 +262,8 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
             throw new APIException("...");
         }
 
-        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
+        double cartPrice =
+                cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
 
         cartItem.setProductPrice(product.getSpecialPrice());
 

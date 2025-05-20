@@ -1,8 +1,7 @@
 package com.spring_commerce.config;
 
 public class AppConstants {
-    private AppConstants() {
-    }
+    private AppConstants() {}
 
     // PAGINATION
     public static final String PAGE_NUMBER = "0";

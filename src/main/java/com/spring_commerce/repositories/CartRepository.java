@@ -10,7 +10,7 @@ import com.spring_commerce.model.Cart;
 public interface CartRepository extends JpaRepository<Cart, Long> {
     Cart findByUserEmail(String email);
 
-    @Query("SELECT c FROM CART v JOIN FETCH c.items ci JOIN FETCH ci.product p WHERE p.id = ?1")
+    @Query("SELECT c FROM Cart c JOIN FETCH c.items ci JOIN FETCH ci.product p WHERE p.id = ?1")
     List<Cart> findAllByProductId(Long productId);
 
 }

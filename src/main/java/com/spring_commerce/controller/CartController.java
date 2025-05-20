@@ -25,8 +25,7 @@ public class CartController {
 
     // Adds a specified quantity of a product to the cart
     @PostMapping("/products/{productId}/quantity/{count}")
-    public ResponseEntity<CartDTO> addProductToCart(
-            @PathVariable Long productId,
+    public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,
             @PathVariable Integer count) {
         CartDTO cartDTO = cartService.addProductToCart(productId, count);
         return new ResponseEntity<>(cartDTO, HttpStatus.CREATED);
@@ -48,14 +47,17 @@ public class CartController {
 
     // Updates the user's cart
     @PutMapping("/products/{productId}/quantity/{operation}")
-    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId, @PathVariable String operation) {
-        CartDTO cartDTO = cartService.updateCartProduct(productId, operation.equalsIgnoreCase("delete") ? -1 : 1);
+    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId,
+            @PathVariable String operation) {
+        CartDTO cartDTO = cartService.updateCartProduct(productId,
+                operation.equalsIgnoreCase("delete") ? -1 : 1);
         return new ResponseEntity<>(cartDTO, HttpStatus.OK);
     }
 
     // Deletes a products from the user's cart
     @DeleteMapping("/{cartId}/product/{productId}")
-    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long productId) {
+    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId,
+            @PathVariable Long productId) {
         String status = cartService.deleteProductFromCart(cartId, productId);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }

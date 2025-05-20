@@ -57,7 +57,8 @@ public class Address {
     @ManyToMany(mappedBy = "addresses")
     private List<User> users = new ArrayList<>();
 
-    public Address(String street, String buildingName, String city, String state, String country, String pinCode) {
+    public Address(String street, String buildingName, String city, String state, String country,
+            String pinCode) {
         this.street = street;
         this.buildingName = buildingName;
         this.city = city;

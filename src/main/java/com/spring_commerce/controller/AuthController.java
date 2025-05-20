@@ -63,10 +63,9 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;
         try {
-            authentication = authenticationManger.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()));
+            authentication =
+                    authenticationManger.authenticate(new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(), loginRequest.getPassword()));
 
         } catch (AuthenticationException e) {
             // Returns error response for failed authentication
@@ -78,20 +77,17 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImplementation userDetails = (UserDetailsImplementation) authentication.getPrincipal();
+        UserDetailsImplementation userDetails =
+                (UserDetailsImplementation) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
         List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
-        LoginResponse response = new LoginResponse(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles);
+        LoginResponse response =
+                new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(response);
 
     }
@@ -100,17 +96,17 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken."));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Username is already taken."));
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use."));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Email is already in use."));
         }
 
         // Create new user account
-        User user = new User(
-                signupRequest.getUsername(),
-                signupRequest.getEmail(),
+        User user = new User(signupRequest.getUsername(), signupRequest.getEmail(),
                 encoder.encode(signupRequest.getPassword()));
 
         Set<String> strRoles = signupRequest.getRoles();
@@ -125,16 +121,16 @@ public class AuthController {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found.")));
+                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_ADMIN).orElseThrow(
+                                () -> new RuntimeException("Error: Role is not found.")));
                         break;
                     case "seller":
-                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_SELLER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found.")));
+                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_SELLER).orElseThrow(
+                                () -> new RuntimeException("Error: Role is not found.")));
                         break;
                     default:
-                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found.")));
+                        roles.add(roleRepository.findByAppRole(AppRole.ROLE_USER).orElseThrow(
+                                () -> new RuntimeException("Error: Role is not found.")));
                 }
             });
         }
@@ -161,18 +157,16 @@ public class AuthController {
         }
 
         // Extract user details from authentication principal
-        UserDetailsImplementation userDetails = (UserDetailsImplementation) authentication.getPrincipal();
+        UserDetailsImplementation userDetails =
+                (UserDetailsImplementation) authentication.getPrincipal();
 
         // Convert authorities to a list of role names
         List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         // Create response with user ID, username, and roles
-        LoginResponse response = new LoginResponse(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles);
+        LoginResponse response =
+                new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
 
         return ResponseEntity.ok().body(response);
     }
@@ -181,8 +175,8 @@ public class AuthController {
     @PostMapping("/signout")
     public ResponseEntity<?> signoutUser() {
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString()) // Clear the JWT cookie
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()) // Clear the
+                                                                                     // JWT cookie
                 .body(new MessageResponse("You have been signed out."));
     }
 }
