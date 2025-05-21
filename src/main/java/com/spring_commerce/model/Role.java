@@ -28,7 +28,7 @@ public class Role {
     @Column(length = 20)
     private AppRole appRole;
 
-    public Role(AppRole appRole) {
+    public Role(final AppRole appRole) {
         this.appRole = appRole;
     }
 

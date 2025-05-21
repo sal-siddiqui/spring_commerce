@@ -1,6 +1,7 @@
 package com.spring_commerce.payload;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AddressDTO {
     // -- Auto-generated field
+    @Null(message = "ID must be null during creation.")
     private Long id;
 
     // -- Required fields from request body

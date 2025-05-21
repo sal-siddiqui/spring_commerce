@@ -31,10 +31,11 @@ public class AuthUtils {
 
     // Retrieves the currently authenticated user
     private User getUser() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication auth =
+                SecurityContextHolder.getContext().getAuthentication();
 
-        return this.userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return this.userRepository.findByUsername(auth.getName()).orElseThrow(
+                () -> new UsernameNotFoundException("User not found"));
     }
 
 }

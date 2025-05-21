@@ -6,4 +6,5 @@ import com.spring_commerce.model.Address;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
+
 }

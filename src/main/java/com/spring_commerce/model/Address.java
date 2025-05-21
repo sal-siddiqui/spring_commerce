@@ -40,8 +40,9 @@ public class Address {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Address(final String street, final String buildingName, final String city, final String state,
-            final String country, final String pinCode) {
+    public Address(final String street, final String buildingName,
+            final String city, final String state, final String country,
+            final String pinCode) {
         this.street = street;
         this.buildingName = buildingName;
         this.city = city;

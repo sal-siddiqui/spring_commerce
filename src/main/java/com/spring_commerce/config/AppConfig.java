@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     @Bean
     public ModelMapper modelMapper() {
-        ModelMapper mapper = new ModelMapper();
+        final ModelMapper mapper = new ModelMapper();
 
         // When copying from src to destination, this makes sure the untouched values in
         // destination are not nulled

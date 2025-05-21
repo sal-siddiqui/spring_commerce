@@ -28,8 +28,8 @@ import lombok.ToString;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")})
+@Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email") })
 public class User {
 
         // -- Auto-generated primary key
@@ -51,21 +51,20 @@ public class User {
         @Size(min = 6, max = 120, message = "Password must be at least 6 characters long")
         private String password;
 
-        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-        @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
-                        inverseJoinColumns = @JoinColumn(name = "role_id"))
+        @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+        @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
         private Set<Role> roles = new HashSet<>();
 
         // -- Relationships
         @ToString.Exclude
-        @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+        @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
         private Set<Product> products;
 
-        @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+        @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
         private List<Address> addresses = new ArrayList<>();
 
         @ToString.Exclude
-        @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+        @OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
         private Cart cart;
 
         public User(final String username, final String email, final String password) {
