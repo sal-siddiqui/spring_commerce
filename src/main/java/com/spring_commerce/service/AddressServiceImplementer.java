@@ -20,10 +20,9 @@ public class AddressServiceImplementer implements AddressService {
     @Autowired
     AddressRepository addressRepository;
 
-
-
     @Override
-    public AddressDTO createAddress(final AddressDTO addressDTO, final User user) {
+    public AddressDTO createAddress(final AddressDTO addressDTO,
+            final User user) {
         // Map DTO to entity
         final Address address = this.modelMapper.map(addressDTO, Address.class);
 
@@ -42,5 +41,15 @@ public class AddressServiceImplementer implements AddressService {
         return this.modelMapper.map(savedAddress, AddressDTO.class);
     }
 
+    @Override
+    public List<AddressDTO> getAddresses() {
+        // Fetch all Address entities from the repository
+        final List<Address> addresses = this.addressRepository.findAll();
+
+        // Convert entities to DTOs using ModelMapper
+        return addresses.stream()
+                .map(address -> this.modelMapper.map(address, AddressDTO.class))
+                .toList();
+    }
 
 }
