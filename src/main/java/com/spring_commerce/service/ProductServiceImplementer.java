@@ -47,38 +47,40 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
   private String path;
 
   @Override
-  public ProductDTO createProduct(ProductDTO newProductDTO, Long categoryId) {
+  public ProductDTO createProduct(final ProductDTO newProductDTO, final Long categoryId) {
 
-    Category category = categoryRepository.findById(categoryId)
+    final Category category = this.categoryRepository.findById(categoryId)
         .orElseThrow(() -> new ResourceNotFoundException("Category", "ID", categoryId));
 
-    if (productRepository.existsByName(newProductDTO.getName())) {
+    if (this.productRepository.existsByName(newProductDTO.getName())) {
       throw new APIException(
           "Product with the name " + newProductDTO.getName() + " already exists.");
     }
 
-    Product newProduct = modelMapper.map(newProductDTO, Product.class);
+    final Product newProduct = this.modelMapper.map(newProductDTO, Product.class);
 
     newProduct.setCategory(category);
 
     newProduct.setSpecialPrice(newProductDTO.getSpecialPrice());
     newProduct.setImage("default.png");
 
-    Product savedProduct = productRepository.save(newProduct);
-    return modelMapper.map(savedProduct, ProductDTO.class);
+    final Product savedProduct = this.productRepository.save(newProduct);
+    return this.modelMapper.map(savedProduct, ProductDTO.class);
   }
 
+
   @Override
-  public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy,
-      String sortOrder) {
+  public ProductResponse getAllProducts(final Integer pageNumber, final Integer pageSize,
+      final String sortBy, final String sortOrder) {
 
-    Page<Product> productPage = getPaginatedResponse(productRepository, Product.class, pageNumber,
-        pageSize, sortBy, sortOrder);
+    final Page<Product> productPage = this.getPaginatedResponse(this.productRepository,
+        Product.class, pageNumber, pageSize, sortBy, sortOrder);
 
-    List<ProductDTO> productDTOs = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
+    final List<ProductDTO> productDTOs = productPage.getContent().stream()
+        .map(product -> this.modelMapper.map(product, ProductDTO.class))
+        .collect(Collectors.toList());
 
-    ProductResponse productResponse = new ProductResponse();
+    final ProductResponse productResponse = new ProductResponse();
     productResponse.setContent(productDTOs);
     productResponse.setPageNumber(productPage.getNumber());
     productResponse.setPageSize(productPage.getSize());
@@ -90,85 +92,96 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
   }
 
+
   @Override
-  public ProductResponse getProductsbyCategoryId(Long categoryId, int pageNumber, int pageSize,
-      String sortBy, String sortOrder) {
+  public ProductResponse getProductsbyCategoryId(final Long categoryId, final int pageNumber,
+      final int pageSize, final String sortBy, final String sortOrder) {
 
-    getOrThrow(categoryRepository, categoryId, "Category");
+    this.getOrThrow(this.categoryRepository, categoryId, "Category");
 
-    Pageable pageable = getPageable(Product.class, pageNumber, pageSize, sortBy, sortOrder);
-    Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
+    final Pageable pageable =
+        this.getPageable(Product.class, pageNumber, pageSize, sortBy, sortOrder);
+    final Page<Product> productPage = this.productRepository.findByCategoryId(categoryId, pageable);
 
     if (productPage.isEmpty()) {
       throw new APIException("No products found for the given category.");
     }
 
-    List<ProductDTO> productsDTO = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
+    final List<ProductDTO> productsDTO = productPage.getContent().stream()
+        .map(product -> this.modelMapper.map(product, ProductDTO.class))
+        .collect(Collectors.toList());
 
     return new ProductResponse(productsDTO, productPage.getNumber(), productPage.getSize(),
         productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
-  @Override
-  public ProductResponse getProductsbyKeyword(String keyword, int pageNumber, int pageSize,
-      String sortBy, String sortOrder) {
 
-    Pageable pageable = getPageable(Product.class, pageNumber, pageSize, sortBy, sortOrder);
-    Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
+  @Override
+  public ProductResponse getProductsbyKeyword(final String keyword, final int pageNumber,
+      final int pageSize, final String sortBy, final String sortOrder) {
+
+    final Pageable pageable =
+        this.getPageable(Product.class, pageNumber, pageSize, sortBy, sortOrder);
+    final Page<Product> productPage =
+        this.productRepository.findByNameContainingIgnoreCase(keyword, pageable);
 
     if (productPage.isEmpty()) {
       throw new APIException("No products found for the given keyword.");
     }
 
-    List<ProductDTO> productsDTO = productPage.getContent().stream()
-        .map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
+    final List<ProductDTO> productsDTO = productPage.getContent().stream()
+        .map(product -> this.modelMapper.map(product, ProductDTO.class))
+        .collect(Collectors.toList());
 
     return new ProductResponse(productsDTO, productPage.getNumber(), productPage.getSize(),
         productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
+
   @Override
-  public ProductDTO updateProduct(ProductDTO newProductDTO, Long productId) {
-    Product productFromDB = getOrThrow(productRepository, productId, "Product");
+  public ProductDTO updateProduct(final ProductDTO newProductDTO, final Long productId) {
+    final Product productFromDB = this.getOrThrow(this.productRepository, productId, "Product");
 
-    modelMapper.map(newProductDTO, productFromDB);
+    this.modelMapper.map(newProductDTO, productFromDB);
 
-    Product updatedProduct = productRepository.save(productFromDB);
+    final Product updatedProduct = this.productRepository.save(productFromDB);
 
-    List<Cart> carts = cartRepository.findAllByProductId(productId);
+    final List<Cart> carts = this.cartRepository.findAllByProductId(productId);
 
-    List<CartDTO> cartDTOs = carts.stream().map(cart -> {
-      CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
-      List<ProductDTO> products = cart.getItems().stream()
-          .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
+    final List<CartDTO> cartDTOs = carts.stream().map(cart -> {
+      final CartDTO cartDTO = this.modelMapper.map(cart, CartDTO.class);
+      final List<ProductDTO> products = cart.getItems().stream()
+          .map(p -> this.modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
       cartDTO.setProducts(products);
       return cartDTO;
     }).toList();
 
-    cartDTOs.forEach(cart -> cartService.updateProductInCarts(cart.getId(), productId));
+    cartDTOs.forEach(cart -> this.cartService.updateProductInCarts(cart.getId(), productId));
 
-    return modelMapper.map(updatedProduct, ProductDTO.class);
+    return this.modelMapper.map(updatedProduct, ProductDTO.class);
   }
 
+
   @Override
-  public void deleteProduct(Long productId) {
-    Product productFromDB = getOrThrow(productRepository, productId, "Product");
+  public void deleteProduct(final Long productId) {
+    final Product productFromDB = this.getOrThrow(this.productRepository, productId, "Product");
 
-    List<Cart> carts = cartRepository.findAllByProductId(productId);
-    carts.forEach(cart -> cartService.deleteProductFromCart(cart.getId(), productId));
+    final List<Cart> carts = this.cartRepository.findAllByProductId(productId);
+    carts.forEach(cart -> this.cartService.deleteProductFromCart(cart.getId(), productId));
 
-    productRepository.delete(productFromDB);
+    this.productRepository.delete(productFromDB);
   }
 
-  @Override
-  public ProductDTO updateProductImage(Long productId, MultipartFile imagefile) throws IOException {
-    Product productFromDB = getOrThrow(productRepository, productId, "Product");
 
-    String fileName = AppUtils.uploadImage(path, imagefile);
+  @Override
+  public ProductDTO updateProductImage(final Long productId, final MultipartFile imagefile)
+      throws IOException {
+    final Product productFromDB = this.getOrThrow(this.productRepository, productId, "Product");
+
+    final String fileName = AppUtils.uploadImage(this.path, imagefile);
     productFromDB.setImage(fileName);
 
-    Product updatedProduct = productRepository.save(productFromDB);
-    return modelMapper.map(updatedProduct, ProductDTO.class);
+    final Product updatedProduct = this.productRepository.save(productFromDB);
+    return this.modelMapper.map(updatedProduct, ProductDTO.class);
   }
 }

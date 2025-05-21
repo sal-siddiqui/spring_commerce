@@ -16,24 +16,24 @@ public class AuthUtils {
 
     // Returns email of the currently authenticated user
     public String loggedInEmail() {
-        return getUser().getEmail();
+        return this.getUser().getEmail();
     }
 
     // Returns ID of the currently authenticated user
     public Long loggedInUserId() {
-        return getUser().getId();
+        return this.getUser().getId();
     }
 
     // Returns the currently authenticated user
     public User loggedInUser() {
-        return getUser();
+        return this.getUser();
     }
 
     // Retrieves the currently authenticated user
     private User getUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        return userRepository.findByUsername(auth.getName())
+        return this.userRepository.findByUsername(auth.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

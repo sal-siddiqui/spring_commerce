@@ -58,18 +58,14 @@ public class User {
 
         // -- Relationships
         @ToString.Exclude
-        @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-                        orphanRemoval = true)
+        @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
         private Set<Product> products;
 
-        @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-        @JoinTable(name = "user_address", joinColumns = @JoinColumn(name = "user_id"),
-                        inverseJoinColumns = @JoinColumn(name = "address_id"))
+        @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
         private List<Address> addresses = new ArrayList<>();
 
         @ToString.Exclude
-        @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-                        orphanRemoval = true)
+        @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
         private Cart cart;
 
         public User(final String username, final String email, final String password) {
