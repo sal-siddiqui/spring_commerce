@@ -51,8 +51,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         final Product product = this.getOrThrow(this.productRepository, productId, "Product");
 
         // Check if product already exists in cart
-        CartItem cartItem =
-                this.cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+        CartItem cartItem = this.cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
         if (cartItem != null) {
             throw new APIException(
                     String.format("Product '%s' already exists in cart.", product.getName()));
@@ -86,7 +85,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         final CartDTO cartDTO = this.modelMapper.map(cart, CartDTO.class);
         final List<CartItem> cartItems = cart.getItems();
 
-        cartDTO.setProducts(cartItems.stream().map(item -> {
+        cartDTO.setProductDTOs(cartItems.stream().map(item -> {
             final ProductDTO productDTO = this.modelMapper.map(item.getProduct(), ProductDTO.class);
             productDTO.setQuantity(item.getQuantity());
             return productDTO;
@@ -94,7 +93,6 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
         return cartDTO;
     }
-
 
     /**
      * Retrieves the logged-in user's cart, or creates a new one if none exists.
@@ -117,7 +115,6 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         return this.cartRepository.save(newCart);
     }
 
-
     /**
      * Retrieves all carts from the repository.
      */
@@ -135,17 +132,15 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
             // Map each product in cart items to ProductDTO
             final List<ProductDTO> productDTOs = cart.getItems().stream().map(item -> {
-                final ProductDTO productDTO =
-                        this.modelMapper.map(item.getProduct(), ProductDTO.class);
+                final ProductDTO productDTO = this.modelMapper.map(item.getProduct(), ProductDTO.class);
                 productDTO.setQuantity(item.getQuantity());
                 return productDTO;
             }).collect(Collectors.toList());
 
-            cartDTO.setProducts(productDTOs);
+            cartDTO.setProductDTOs(productDTOs);
             return cartDTO;
         }).collect(Collectors.toList());
     }
-
 
     /**
      * Retrieves the current user's shopping cart.
@@ -165,7 +160,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         final CartDTO cartDTO = this.modelMapper.map(cart, CartDTO.class);
 
         // Map each cart item to a ProductDTO with quantity
-        cartDTO.setProducts(cart.getItems().stream().map(item -> {
+        cartDTO.setProductDTOs(cart.getItems().stream().map(item -> {
             final ProductDTO productDTO = this.modelMapper.map(item.getProduct(), ProductDTO.class);
             productDTO.setQuantity(item.getQuantity());
             return productDTO;
@@ -173,7 +168,6 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
         return cartDTO;
     }
-
 
     /**
      * Updates the current user's shopping cart.
@@ -189,8 +183,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         final Product product = this.getOrThrow(this.productRepository, productId, "Product");
 
         // Find the cart item for the given product
-        final CartItem cartItem =
-                this.cartItemRepository.findByCartIdAndProductId(cartId, productId);
+        final CartItem cartItem = this.cartItemRepository.findByCartIdAndProductId(cartId, productId);
 
         if (cartItem == null) {
             throw new APIException("Cart item not found.");
@@ -229,12 +222,11 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
             return prd;
         });
 
-        cartDTO.setProducts(productStream.toList());
+        cartDTO.setProductDTOs(productStream.toList());
 
         return cartDTO;
 
     }
-
 
     @Override
     @Transactional
@@ -244,8 +236,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
         final Product product = this.getOrThrow(this.productRepository, productId, "Product");
 
         // Find the cart item for the given product
-        final CartItem cartItem =
-                this.cartItemRepository.findByCartIdAndProductId(cartId, productId);
+        final CartItem cartItem = this.cartItemRepository.findByCartIdAndProductId(cartId, productId);
 
         if (cartItem == null) {
             throw new APIException("Cart item not found.");
@@ -260,7 +251,6 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
 
     }
 
-
     @Override
     public void updateProductInCarts(final Long id, final Long productId) {
         final Cart cart = this.getOrThrow(this.cartRepository, id, "Cart");
@@ -272,8 +262,7 @@ public class CartServiceImplementer extends BaseServiceImplementer implements Ca
             throw new APIException("...");
         }
 
-        final double cartPrice =
-                cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
+        final double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
 
         cartItem.setProductPrice(product.getSpecialPrice());
 

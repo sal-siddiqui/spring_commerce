@@ -18,7 +18,6 @@ public abstract class BaseServiceImplementer {
         return repository.existsById(id);
     }
 
-
     // Retrieve a resource by ID or throw if not found
     public <T> T getOrThrow(final JpaRepository<T, Long> repository,
             final Long id, final String resourceName) {
@@ -32,7 +31,6 @@ public abstract class BaseServiceImplementer {
         this.getOrThrow(repository, id, resourceName); // Ensure resource exists
         repository.deleteById(id); // Proceed with deletion
     }
-
 
     // Builds a Pageable object with validation for page, size, sort field, and
     // order
@@ -50,21 +48,18 @@ public abstract class BaseServiceImplementer {
             throw new APIException("Sort order must be 'asc' or 'desc'.");
         }
 
-        final boolean validSortField =
-                Arrays.stream(entityClass.getDeclaredFields())
-                        .anyMatch(field -> field.getName().equals(sortBy));
+        final boolean validSortField = Arrays.stream(entityClass.getDeclaredFields())
+                .anyMatch(field -> field.getName().equals(sortBy));
 
         if (!validSortField) {
             throw new APIException("Invalid sort field: '" + sortBy + "'");
         }
 
-        final Sort sort =
-                "asc".equalsIgnoreCase(sortOrder) ? Sort.by(sortBy).ascending()
-                        : Sort.by(sortBy).descending();
+        final Sort sort = "asc".equalsIgnoreCase(sortOrder) ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
         return PageRequest.of(pageNumber, pageSize, sort);
     }
-
 
     // Retrieves a paginated and sorted page of entities or throws an exception if
     // invalid

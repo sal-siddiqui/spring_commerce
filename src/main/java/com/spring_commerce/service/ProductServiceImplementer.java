@@ -67,13 +67,12 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
     return this.modelMapper.map(savedProduct, ProductDTO.class);
   }
 
-
   @Override
   public ProductResponse getAllProducts(final Integer pageNumber, final Integer pageSize, final String sortBy,
       final String sortOrder) {
 
-    final Page<Product> productPage =
-        this.getPaginatedResponse(this.productRepository, Product.class, pageNumber, pageSize, sortBy, sortOrder);
+    final Page<Product> productPage = this.getPaginatedResponse(this.productRepository, Product.class, pageNumber,
+        pageSize, sortBy, sortOrder);
 
     final List<ProductDTO> productDTOs = productPage.getContent().stream()
         .map(product -> this.modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList());
@@ -89,7 +88,6 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
     return productResponse;
 
   }
-
 
   @Override
   public ProductResponse getProductsbyCategoryId(final Long categoryId, final int pageNumber, final int pageSize,
@@ -112,7 +110,6 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
         productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
-
   @Override
   public ProductResponse getProductsbyKeyword(final String keyword, final int pageNumber, final int pageSize,
       final String sortBy, final String sortOrder) {
@@ -131,7 +128,6 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
         productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast());
   }
 
-
   @Override
   public ProductDTO updateProduct(final ProductDTO newProductDTO, final Long productId) {
     final Product productFromDB = this.getOrThrow(this.productRepository, productId, "Product");
@@ -144,9 +140,9 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
     final List<CartDTO> cartDTOs = carts.stream().map(cart -> {
       final CartDTO cartDTO = this.modelMapper.map(cart, CartDTO.class);
-      final List<ProductDTO> products =
-          cart.getItems().stream().map(p -> this.modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
-      cartDTO.setProducts(products);
+      final List<ProductDTO> products = cart.getItems().stream()
+          .map(p -> this.modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
+      cartDTO.setProductDTOs(products);
       return cartDTO;
     }).toList();
 
@@ -154,7 +150,6 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
     return this.modelMapper.map(updatedProduct, ProductDTO.class);
   }
-
 
   @Override
   public void deleteProduct(final Long productId) {
@@ -165,7 +160,6 @@ public class ProductServiceImplementer extends BaseServiceImplementer implements
 
     this.productRepository.delete(productFromDB);
   }
-
 
   @Override
   public ProductDTO updateProductImage(final Long productId, final MultipartFile imagefile) throws IOException {

@@ -18,20 +18,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderItem {
     // -- Table Fields
-    @ManyToOne
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantity;
-    private double discount;
-    private double finalPrice;
-
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    private Integer quantity;
+    private double discount;
+    private double finalPrice;
+
+    public OrderItem(final Product product, final Order order, final Integer quantity, final double discount,
+            final double finalPrice) {
+        this.product = product;
+        this.order = order;
+        this.quantity = quantity;
+        this.discount = discount;
+        this.finalPrice = finalPrice;
+    }
 
 }

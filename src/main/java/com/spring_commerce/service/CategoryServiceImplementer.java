@@ -23,21 +23,22 @@ public class CategoryServiceImplementer extends BaseServiceImplementer implement
     private ModelMapper modelMapper;
 
     @Override
-    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public CategoryResponse getAllCategories(final Integer pageNumber, final Integer pageSize, final String sortBy,
+            final String sortOrder) {
 
-        Page<Category> categoryPage = getPaginatedResponse(
-                categoryRepository,
+        final Page<Category> categoryPage = this.getPaginatedResponse(
+                this.categoryRepository,
                 Category.class,
                 pageNumber,
                 pageSize,
                 sortBy,
                 sortOrder);
 
-        List<CategoryDTO> categoryDTOs = categoryPage.getContent().stream()
-                .map(category -> modelMapper.map(category, CategoryDTO.class))
+        final List<CategoryDTO> categoryDTOs = categoryPage.getContent().stream()
+                .map(category -> this.modelMapper.map(category, CategoryDTO.class))
                 .toList();
 
-        CategoryResponse categoryResponse = new CategoryResponse();
+        final CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse.setContent(categoryDTOs);
         categoryResponse.setPageNumber(categoryPage.getNumber());
         categoryResponse.setPageSize(categoryPage.getSize());
@@ -49,33 +50,33 @@ public class CategoryServiceImplementer extends BaseServiceImplementer implement
     }
 
     @Override
-    public CategoryDTO createCategory(CategoryDTO newCategoryDTO) {
+    public CategoryDTO createCategory(final CategoryDTO newCategoryDTO) {
 
-        if (categoryRepository.existsByName(newCategoryDTO.getName())) {
+        if (this.categoryRepository.existsByName(newCategoryDTO.getName())) {
             throw new APIException("Category with the name " + newCategoryDTO.getName() + " already exists.");
         }
 
-        Category newCategory = modelMapper.map(newCategoryDTO, Category.class);
+        final Category newCategory = this.modelMapper.map(newCategoryDTO, Category.class);
 
-        Category createdCategory = categoryRepository.save(newCategory);
-        return modelMapper.map(createdCategory, CategoryDTO.class);
+        final Category createdCategory = this.categoryRepository.save(newCategory);
+        return this.modelMapper.map(createdCategory, CategoryDTO.class);
     }
 
     @Override
-    public void deleteCategory(Long categoryId) {
-        Category existingCategory = getOrThrow(categoryRepository, categoryId, "Category");
+    public void deleteCategory(final Long categoryId) {
+        final Category existingCategory = this.getOrThrow(this.categoryRepository, categoryId, "Category");
 
-        categoryRepository.delete(existingCategory);
+        this.categoryRepository.delete(existingCategory);
     }
 
     @Override
-    public CategoryDTO updateCategory(CategoryDTO updatedCategoryDTO, Long categoryId) {
-        Category existingCategory = getOrThrow(categoryRepository, categoryId, "Category");
+    public CategoryDTO updateCategory(final CategoryDTO updatedCategoryDTO, final Long categoryId) {
+        final Category existingCategory = this.getOrThrow(this.categoryRepository, categoryId, "Category");
 
-        modelMapper.map(updatedCategoryDTO, existingCategory);
+        this.modelMapper.map(updatedCategoryDTO, existingCategory);
 
-        Category savedCategory = categoryRepository.save(existingCategory);
-        return modelMapper.map(savedCategory, CategoryDTO.class);
+        final Category savedCategory = this.categoryRepository.save(existingCategory);
+        return this.modelMapper.map(savedCategory, CategoryDTO.class);
     }
 
 }
